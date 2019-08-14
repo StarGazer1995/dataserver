@@ -1,0 +1,31 @@
+version: '2'
+services:
+  master:
+        restart: always
+        image: gongzhao1995/py_spark
+        container_name: master
+        hostname: master
+        ports:
+            - 4040:4040
+            - 8042:8042
+            - 7077:7077
+            - 8088:8088
+            - 8080:8080
+            - 8888:8888
+        #deploy:
+        #        resources:
+        #            limits:
+        #                cpus: '0.50'
+        #                memory: 1024M
+        #            reservations:
+        #                cpus: '0.25'
+        #                memory: 256M
+       # command: bash /usr/local/spark/sbin/start-master.sh
+  worker:
+        restart: always
+        image: gongzhao1995/py_spark
+        links: 
+          - master:master
+        expose: 
+          - "8081"
+        command: bash /usr/local/spark/sbin/start-slave.sh spark://master:7077 && ping localhost >del/null
