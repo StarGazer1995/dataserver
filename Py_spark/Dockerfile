@@ -11,16 +11,22 @@ RUN wget --quiet https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> /etc/profile && \
+    echo "conda activate base" >> /etc/profile
+
+ENV CONDA /opt/conda
+ENV PATH $PATH:CONDA/bin
 
 RUN conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/ && \
     conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/ && \
     conda config --set show_channel_urls yes && \
     conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/ && \
-    conda install -c conda-forge pyspark
+    conda install -y pyspark
 
-
+ENV PYTHONPATH $SPARK_HOME/python/:$PYTHONPATH 
+ENV PYSPARK_PYTHON=python3     
+ENV PYSPARK_DRIVER_PYTHON=jupyter 
+ENV PYSPARK_DRIVER_PYTHON_OPTS="notebook --ip=myz-master --no-browser --allow-root"
 
 #&& \
 #    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
@@ -37,5 +43,7 @@ RUN apt-get install -y curl grep sed dpkg && \
     dpkg -i tini.deb && \
     rm tini.deb && \
     apt-get clean
-
+RUN  echo $PYTHONPATH
+        #ipython
+        #conda activate geograph
 ENTRYPOINT ["/etc/bootstrap.sh"]
